@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#1a1a2e"/>
+  <title>Planes del Grupo</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="icon" href="icon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --bg2: #16162a;
+      --bg3: #1e1e35;
+      --border: rgba(255,255,255,0.08);
+      --accent: #7c6af7;
+      --accent2: #f7936a;
+      --accent3: #6af7c8;
+      --text: #f0f0ff;
+      --text2: rgba(240,240,255,0.55);
+      --text3: rgba(240,240,255,0.3);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 90px;
+    }
+    h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #1a1a35 0%, #0f0f1a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 16px;
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(20px);
+    }
+    .header-top { display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .header h1 span { color: var(--accent); }
+    .week-pill {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--text2);
+      font-family: 'Syne', sans-serif;
+    }
+    .sync-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent3);
+      display: inline-block; margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 14px 20px 0;
+      background: var(--bg);
+      position: sticky; top: 72px; z-index: 99;
+      overflow-x: auto;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      padding: 8px 18px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text2);
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* CONTENT */
+    .content { padding: 20px; max-width: 600px; margin: 0 auto; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* CARDS */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-label {
+      font-size: 11px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      margin-bottom: 14px;
+    }
+
+    /* SORTEO */
+    .spin-card {
+      background: linear-gradient(135deg, #1e1a4a 0%, #1a2a1e 100%);
+      border: 1px solid rgba(124,106,247,0.3);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .spin-btn {
+      background: linear-gradient(135deg, var(--accent), #a06af7);
+      border: none;
+      border-radius: 99px;
+      padding: 16px 36px;
+      font-size: 16px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 8px 32px rgba(124,106,247,0.4);
+    }
+    .spin-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(124,106,247,0.5); }
+    .spin-btn:active { transform: translateY(0); }
+    .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .result-card {
+      background: var(--bg3);
+      border: 1px solid rgba(124,106,247,0.4);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .result-card.show { display: block; }
+    .result-emoji { font-size: 48px; margin-bottom: 12px; }
+    .result-organizer { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+    .result-name { font-size: 28px; font-family: 'Syne', sans-serif; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .result-activity { font-size: 16px; color: var(--accent); font-weight: 500; margin-bottom: 20px; }
+
+    .rating-section { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; }
+    .rating-label { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+    .stars { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+    .star { font-size: 32px; cursor: pointer; color: var(--text3); transition: all 0.15s; }
+    .star:hover, .star.lit { color: #f7c26a; transform: scale(1.1); }
+    .rating-saved { font-size: 13px; color: var(--accent3); display: none; }
+    .rating-saved.show { display: block; }
+
+    /* INPUT ROW */
+    .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .input-row input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-row input:focus { border-color: var(--accent); }
+    .input-row input::placeholder { color: var(--text3); }
+    .btn-add {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 11px 18px;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 300;
+    }
+    .btn-add:hover { background: #9a8af9; }
+
+    /* LIST ITEMS */
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg3);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 13px;
+      flex-shrink: 0;
+    }
+    .item-name { flex: 1; font-size: 14px; }
+    .item-score { font-size: 13px; color: var(--text2); }
+    .btn-del {
+      background: none; border: none;
+      color: var(--text3); cursor: pointer;
+      font-size: 18px; padding: 2px 6px;
+      border-radius: 6px; transition: all 0.15s;
+    }
+    .btn-del:hover { background: rgba(247,100,100,0.1); color: #f76464; }
+
+    /* ACTIVITIES GRID */
+    .act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .act-chip {
+      background: var(--bg3);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 13px;
+      display: flex; align-items: center; gap: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+    .act-icon { font-size: 18px; }
+    .act-name { flex: 1; }
+
+    /* HISTORY */
+    .hist-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .hist-item:last-child { border-bottom: none; }
+    .hist-week {
+      background: var(--bg3);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      color: var(--text2);
+      flex-shrink: 0;
+    }
+    .hist-info { flex: 1; }
+    .hist-act { font-size: 14px; font-weight: 500; }
+    .hist-who { font-size: 12px; color: var(--text2); }
+    .hist-rating { color: #f7c26a; font-size: 14px; }
+
+    /* RANKING */
+    .lb-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .lb-item:last-child { border-bottom: none; }
+    .lb-rank { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; width: 28px; color: var(--text3); }
+    .lb-rank.gold { color: #f7c26a; }
+    .lb-rank.silver { color: #b0b8c8; }
+    .lb-rank.bronze { color: #c8956a; }
+    .lb-info { flex: 1; }
+    .lb-name { font-size: 15px; font-weight: 500; }
+    .lb-bar-wrap { height: 4px; background: var(--bg3); border-radius: 99px; margin-top: 6px; }
+    .lb-bar { height: 4px; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .lb-score { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 32px 0; color: var(--text3); font-size: 14px; }
+    .empty-icon { font-size: 36px; margin-bottom: 8px; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 99px; padding: 10px 20px;
+      font-size: 13px; color: var(--text);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 20px; color: var(--text3); font-size: 14px; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      backdrop-filter: blur(20px);
+    }
+    .nav-btn {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 12px 0;
+      background: none; border: none;
+      color: var(--text3); cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      gap: 4px; transition: color 0.2s;
+    }
+    .nav-btn.active { color: var(--accent); }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>Planes <span>del grupo</span></h1>
+    <span class="week-pill"><span class="sync-dot"></span>En línea</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('sorteo')">🎲 Sorteo</button>
+  <button class="tab" onclick="switchTab('miembros')">👥 Miembros</button>
+  <button class="tab" onclick="switchTab('actividades')">🎯 Actividades</button>
+  <button class="tab" onclick="switchTab('ranking')">🏆 Ranking</button>
+</div>
+
+<div class="content">
+
+  <!-- SORTEO -->
+  <div class="tab-panel active" id="panel-sorteo">
+    <div class="spin-card">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px">¿Quién organiza esta semana?</div>
+      <button class="spin-btn" id="spin-btn" onclick="doSpin()">✨ Hacer sorteo semanal</button>
+    </div>
+
+    <div class="result-card" id="result-card">
+      <div class="result-emoji" id="result-emoji">🎉</div>
+      <div class="result-organizer">Esta semana organiza</div>
+      <div class="result-name" id="result-name">—</div>
+      <div class="result-activity" id="result-activity">—</div>
+
+      <div class="rating-section" id="rating-section" style="display:none">
+        <div class="rating-label" id="rating-label">Puntúa el plan anterior</div>
+        <div class="stars" id="stars">
+          <span class="star" onclick="rateStar(1)">★</span>
+          <span class="star" onclick="rateStar(2)">★</span>
+          <span class="star" onclick="rateStar(3)">★</span>
+          <span class="star" onclick="rateStar(4)">★</span>
+          <span class="star" onclick="rateStar(5)">★</span>
+        </div>
+        <div class="rating-saved" id="rating-saved">✓ Puntuación guardada</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Historial de planes</div>
+      <div id="history-list"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- MIEMBROS -->
+  <div class="tab-panel" id="panel-miembros">
+    <div class="card">
+      <div class="card-label">Añadir miembro</div>
+      <div class="input-row">
+        <input type="text" id="member-input" placeholder="Nombre del miembro..." onkeydown="if(event.key==='Enter')addMember()"/>
+        <button class="btn-add" onclick="addMember()">+</button>
+      </div>
+      <div id="members-list"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- ACTIVIDADES -->
+  <div class="tab-panel" id="panel-actividades">
+    <div class="card">
+      <div class="card-label">Añadir actividad</div>
+      <div class="input-row">
+        <input type="text" id="activity-input" placeholder="Ej: Senderismo, Escape Room..." onkeydown="if(event.key==='Enter')addActivity()"/>
+        <button class="btn-add" onclick="addActivity()">+</button>
+      </div>
+      <div class="act-grid" id="activities-grid"><div class="loading" style="grid-column:span 2">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- RANKING -->
+  <div class="tab-panel" id="panel-ranking">
+    <div class="card">
+      <div class="card-label">Ranking por puntuación media</div>
+      <div id="leaderboard"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const SUPABASE_URL = 'https://aosatpxgdnwsowhahssj.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ZNH4JFQ4YvvdkoL0A6rKJw_EL7a58Qm';
+
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const ACT_EMOJIS = ['🏔️','🧩','🚴','🎵','⚽','🍷','🎬','🍳','🏕️','🎨','🎳','🎭','🏊','🎤','🌿'];
+  const COLORS = [
+    {bg:'#2a1e4a',c:'#b09af9'},{bg:'#1a3a2a',c:'#6af7a0'},{bg:'#3a2a1a',c:'#f7c26a'},
+    {bg:'#3a1a2a',c:'#f76aaa'},{bg:'#1a2a3a',c:'#6ab8f7'},{bg:'#2a3a1a',c:'#b0f76a'},
+    {bg:'#3a1a1a',c:'#f76a6a'},{bg:'#1a3a3a',c:'#6af7f7'}
+  ];
+
+  let members = [], activities = [], history = [], pendingRating = null;
+
+  async function loadAll() {
+    const [m, a, h] = await Promise.all([
+      sb.from('members').select('*').order('id'),
+      sb.from('activities').select('*').order('id'),
+      sb.from('history').select('*').order('created_at', {ascending: false})
+    ]);
+    members = m.data || [];
+    activities = a.data || [];
+    history = h.data || [];
+    renderAll();
+  }
+
+  function renderAll() {
+    renderMembers();
+    renderActivities();
+    renderHistory();
+    renderLeaderboard();
+  }
+
+  function getInitials(name) { return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+  function getWeek() {
+    const now = new Date(), start = new Date(now.getFullYear(),0,1);
+    return Math.ceil(((now-start)/86400000+start.getDay()+1)/7);
+  }
+
+  // MEMBERS
+  function renderMembers() {
+    const el = document.getElementById('members-list');
+    if(!members.length){ el.innerHTML='<div class="empty"><div class="empty-icon">👥</div>Añade los miembros del grupo</div>'; return; }
+    el.innerHTML = members.map((m,i)=>{
+      const col = COLORS[i%COLORS.length];
+      const avg = m.ratings>0 ? (m.total_score/m.ratings).toFixed(1) : null;
+      return `<div class="list-item">
+        <div class="avatar" style="background:${col.bg};color:${col.c}">${getInitials(m.name)}</div>
+        <span class="item-name">${m.name}</span>
+        ${avg ? `<span class="item-score">★ ${avg}</span>` : ''}
+        <button class="btn-del" onclick="window.deleteMember('${m.id}')">×</button>
+      </div>`;
+    }).join('');
+  }
+
+  window.addMember = async () => {
+    const inp = document.getElementById('member-input');
+    const name = inp.value.trim();
+    if(!name) return;
+    const {data,error} = await sb.from('members').insert({name,total_score:0,ratings:0}).select();
+    if(!error){ members.push(data[0]); inp.value=''; renderMembers(); showToast('✓ '+name+' añadido'); }
+  };
+
+  window.deleteMember = async (id) => {
+    await sb.from('members').delete().eq('id',id);
+    members = members.filter(m=>m.id!==id);
+    renderMembers();
+  };
+
+  // ACTIVITIES
+  function renderActivities() {
+    const el = document.getElementById('activities-grid');
+    if(!activities.length){ el.innerHTML='<div class="empty" style="grid-column:span 2"><div class="empty-icon">🎯</div>Añade actividades al grupo</div>'; return; }
+    el.innerHTML = activities.map((a,i)=>`
+      <div class="act-chip">
+        <span class="act-icon">${ACT_EMOJIS[i%ACT_EMOJIS.length]}</span>
+        <span class="act-name">${a.name}</span>
+        <button class="btn-del" onclick="window.deleteActivity('${a.id}')">×</button>
+      </div>`).join('');
+  }
+
+  window.addActivity = async () => {
+    const inp = document.getElementById('activity-input');
+    const name = inp.value.trim();
+    if(!name) return;
+    const {data,error} = await sb.from('activities').insert({name}).select();
+    if(!error){ activities.push(data[0]); inp.value=''; renderActivities(); showToast('✓ Actividad añadida'); }
+  };
+
+  window.deleteActivity = async (id) => {
+    await sb.from('activities').delete().eq('id',id);
+    activities = activities.filter(a=>a.id!==id);
+    renderActivities();
+  };
+
+  // SORTEO
+  window.doSpin = async () => {
+    if(!members.length||!activities.length){ showToast('⚠️ Añade miembros y actividades primero'); return; }
+    const btn = document.getElementById('spin-btn');
+    btn.disabled = true; btn.textContent = '🎲 Sorteando...';
+
+    const member = members[Math.floor(Math.random()*members.length)];
+    const activity = activities[Math.floor(Math.random()*activities.length)];
+    const week = getWeek();
+
+    const {data,error} = await sb.from('history').insert({
+      member_name: member.name,
+      activity: activity.name,
+      week,
+      date: new Date().toLocaleDateString('es-ES')
+    }).select();
+
+    if(!error){
+      history.unshift(data[0]);
+      pendingRating = history.length > 1 ? history[1] : null;
+
+      document.getElementById('result-emoji').textContent = ACT_EMOJIS[activities.indexOf(activity)%ACT_EMOJIS.length] || '🎉';
+      document.getElementById('result-name').textContent = member.name;
+      document.getElementById('result-activity').textContent = '→ ' + activity.name;
+
+      const rc = document.getElementById('result-card');
+      rc.classList.add('show');
+
+      // Rating section
+      const rs = document.getElementById('rating-section');
+      if(pendingRating && !pendingRating.rating) {
+        rs.style.display = 'block';
+        document.getElementById('rating-label').textContent = 'Puntúa: '+pendingRating.activity;
+        resetStars();
+        document.getElementById('rating-saved').classList.remove('show');
+      } else {
+        rs.style.display = 'none';
+      }
+
+      renderHistory();
+    }
+
+    btn.disabled = false; btn.textContent = '✨ Hacer sorteo semanal';
+  };
+
+  function resetStars() {
+    document.querySelectorAll('.star').forEach(s=>s.classList.remove('lit'));
+  }
+
+  window.rateStar = async (n) => {
+    document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+    if(!pendingRating) return;
+
+    // Update history rating
+    await sb.from('history').update({rating:n}).eq('id',pendingRating.id);
+
+    // Update member score
+    const memberIdx = members.findIndex(m=>m.name===pendingRating.member_name);
+    if(memberIdx>=0){
+      const m = members[memberIdx];
+      const newTotal = (m.total_score||0)+n;
+      const newRatings = (m.ratings||0)+1;
+      await sb.from('members').update({total_score:newTotal,ratings:newRatings}).eq('id',m.id);
+      members[memberIdx].total_score = newTotal;
+      members[memberIdx].ratings = newRatings;
+    }
+
+    pendingRating.rating = n;
+    history[1] = pendingRating;
+
+    document.getElementById('rating-saved').classList.add('show');
+    renderHistory();
+    renderLeaderboard();
+    renderMembers();
+  };
+
+  // HISTORY
+  function renderHistory() {
+    const el = document.getElementById('history-list');
+    if(!history.length){ el.innerHTML='<div class="empty"><div class="empty-icon">📅</div>Aún no hay planes sorteados</div>'; return; }
+    el.innerHTML = history.map(h=>`
+      <div class="hist-item">
+        <div class="hist-week">S${h.week}</div>
+        <div class="hist-info">
+          <div class="hist-act">${h.activity}</div>
+          <div class="hist-who">${h.member_name} · ${h.date||''}</div>
+        </div>
+        ${h.rating ? `<div class="hist-rating">★${h.rating}</div>` : '<div style="font-size:12px;color:var(--text3)">sin puntuación</div>'}
+      </div>`).join('');
+  }
+
+  // LEADERBOARD
+  function renderLeaderboard() {
+    const el = document.getElementById('leaderboard');
+    const rated = members.filter(m=>m.ratings>0)
+      .map(m=>({...m, avg: m.total_score/m.ratings}))
+      .sort((a,b)=>b.avg-a.avg);
+    if(!rated.length){ el.innerHTML='<div class="empty"><div class="empty-icon">🏆</div>El ranking aparece cuando hay puntuaciones</div>'; return; }
+    const max = rated[0].avg;
+    const rankClass = ['gold','silver','bronze'];
+    el.innerHTML = rated.map((m,i)=>{
+      const col = COLORS[i%COLORS.length];
+      return `<div class="lb-item">
+        <div class="lb-rank ${rankClass[i]||''}">${i+1}</div>
+        <div class="avatar" style="background:${col.bg};color:${col.c};width:36px;height:36px;font-size:13px;flex-shrink:0">${getInitials(m.name)}</div>
+        <div class="lb-info">
+          <div class="lb-name">${m.name}</div>
+          <div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round((m.avg/5)*100)}%"></div></div>
+        </div>
+        <div>
+          <div class="lb-score">★ ${m.avg.toFixed(1)}</div>
+          <div style="font-size:11px;color:var(--text3);text-align:right">${m.ratings} plan${m.ratings>1?'es':''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // UI HELPERS
+  window.switchTab = (name) => {
+    document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['sorteo','miembros','actividades','ranking'][i]===name));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+name).classList.add('active');
+  };
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2500);
+  }
+
+  // Update week badge
+  document.querySelector('.week-pill').innerHTML = `<span class="sync-dot"></span>Semana ${getWeek()}`;
+
+  // Real-time sync
+  sb.channel('changes')
+    .on('postgres_changes', {event:'*', schema:'public'}, () => loadAll())
+    .subscribe();
+
+  loadAll();
+</script>
+</body>
+</html>
